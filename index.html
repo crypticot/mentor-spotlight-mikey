@@ -3,21 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Coming Soon</title>
+    <title>The Adventures of MiKEY and Chindindu</title>
     
-    <!-- Google Fonts -->
+    <!-- Wimpy Kid Hand-drawn & Cover Typefaces -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400&family=Plus+Jakarta+Sans:wght@800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Gochi+Hand&family=Plus+Jakarta+Sans:wght@800&display=swap" rel="stylesheet">
 
     <style>
-        /* --- DESIGN SYSTEM --- */
+        /* --- DOAWK DESIGN SYSTEM --- */
         :root {
-            --bg-dark: #070708;
-            --orange-bright: #ff5500;
-            --orange-deep: #cc3300;
-            --orange-glow: rgba(255, 85, 0, 0.25);
-            --text-color: #ff9966;
+            --notebook-line: #bcd2ee;
+            --notebook-margin: #ff5500;
+            --wimpy-orange: #ff5500;
+            --wimpy-dark: #111112;
+            --paper-white: #fafafa;
+            --cover-orange: #f45100; /* Rich, solid book cover orange */
         }
 
         * {
@@ -26,233 +27,648 @@
             padding: 0;
         }
 
-        body {
-            background-color: var(--bg-dark);
-            min-height: 100vh;
+		body {
+			background-color: #121214;
+			background-image: radial-gradient(rgba(255, 85, 0, 0.12) 1px, transparent 0);
+			background-size: 24px 24px;
+			font-family: 'Gochi Hand', cursive;
+			color: var(--wimpy-dark);
+			min-height: 100vh;
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			justify-content: center;
+			gap: 12px;
+			padding: 10px;
+			overflow-x: hidden;
+		}
+
+        /* --- SOUND DECK --- */
+		.audio-deck {
+			background: var(--paper-white);
+			border: 3px solid var(--wimpy-dark);
+			border-radius: 12px;
+			padding: 10px 15px;
+			box-shadow: 4px 4px 0px var(--wimpy-dark);
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			gap: 10px;
+			width: 100%;
+			max-width: 850px;
+		}
+
+        .audio-deck button {
+            background: var(--wimpy-orange);
+            color: white;
+            border: 2px solid var(--wimpy-dark);
+            font-family: 'Gochi Hand', cursive;
+            font-size: 1.1rem;
+            padding: 2px 10px;
+            cursor: pointer;
+            border-radius: 6px;
+        }
+
+        .audio-deck input[type="range"] {
+            accent-color: var(--wimpy-orange);
+            cursor: pointer;
+            width: 80px;
+        }
+
+        /* --- THE JOURNAL BOOK WRAPPER --- */
+        .book-container {
+            width: 100%;
+            max-width: 850px;
+            height: 90vh;
+            max-height: 680px;
+            background: var(--paper-white);
+            border: 5px solid var(--wimpy-dark);
+            border-radius: 12px;
+            box-shadow: 16px 16px 0px rgba(0,0,0,0.95);
+            position: relative;
             overflow: hidden;
             display: flex;
             flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            perspective: 1000px;
         }
 
-        /* --- BACKGROUND CANVAS --- */
-        canvas {
+        /* Lined Paper Effect (for inner journal pages only) */
+        .lined-paper {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
+            background: linear-gradient(var(--notebook-line) 1px, transparent 1px);
+            background-size: 100% 2.2rem;
+            padding-top: 3.5rem;
             z-index: 1;
+            transition: opacity 0.3s ease;
         }
 
-        /* --- TEXT CONTAINER --- */
-        .text-wrap {
-            position: relative;
+        .lined-paper::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 60px;
+            width: 2px;
+            height: 100%;
+            background: var(--notebook-margin);
+        }
+
+        /* Hide notebook lines specifically on the hardcovers */
+        .book-container.on-cover .lined-paper {
+            opacity: 0;
+        }
+
+        /* --- SLIDE CAPTURE MANAGEMENT --- */
+        .slide {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
             z-index: 2;
-            text-align: center;
+            opacity: 0;
             pointer-events: none;
-            user-select: none;
-            padding: 20px;
+            transform: translateX(40px);
+            transition: opacity 0.3s ease, transform 0.4s ease-out;
+            display: flex;
+            flex-direction: column;
+            padding: 2rem 2rem 2rem 5rem;
+			overflow-y: auto;
         }
 
-        /* --- TYPOGRAPHY & TEXT ANIMATIONS --- */
-        h1 {
+        .slide.active {
+            opacity: 1;
+            pointer-events: auto;
+            transform: translateX(0);
+        }
+
+        /* --- HARDCOVER SPECIAL STYLING --- */
+        .slide.hardcover {
+            background: var(--cover-orange);
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            text-align: center;
+        }
+
+        /* Realistic book spine/hinge line shadow on the covers */
+        .slide.hardcover::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 35px;
+            width: 15px;
+            height: 100%;
+            background: linear-gradient(to right, rgba(0,0,0,0.15), transparent, rgba(0,0,0,0.08));
+            border-left: 1px solid rgba(0,0,0,0.2);
+            border-right: 1px solid rgba(0,0,0,0.2);
+        }
+
+        /* --- HARDCOVER ELEMENTS --- */
+        .cover-top-tag {
             font-family: 'Plus Jakarta Sans', sans-serif;
-            font-size: clamp(3.5rem, 10vw, 8rem);
+            font-size: clamp(1rem, 2.5vw, 1.4rem);
+            font-weight: 800;
+            color: #fff;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            background: var(--wimpy-dark);
+            padding: 6px 24px;
+            border-radius: 4px;
+            border: 2px solid #fff;
+            transform: rotate(-0.5deg);
+            box-shadow: 4px 4px 0 rgba(0,0,0,0.3);
+        }
+
+        .cover-main-title {
+            background: #fff;
+            border: 4px solid var(--wimpy-dark);
+            padding: 20px 30px;
+            width: 90%;
+            max-width: 580px;
+            transform: rotate(1deg);
+            box-shadow: 8px 8px 0 rgba(0,0,0,0.25);
+            margin: 15px 0;
+        }
+
+        .cover-main-title h1 {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: clamp(1.8rem, 4.5vw, 3.2rem);
             font-weight: 800;
             text-transform: uppercase;
-            letter-spacing: -0.04em;
-            line-height: 0.9;
-            margin-bottom: 0.5rem;
-            
-            /* Fluid Orange Gradient */
-            background: linear-gradient(135deg, #ffffff 10%, var(--orange-bright) 60%, var(--orange-deep) 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            
-            /* Structural glow */
-            filter: drop-shadow(0 0 35px var(--orange-glow));
-            
-            /* Entry Animation */
-            animation: textReveal 1.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            line-height: 1.1;
+            color: var(--wimpy-dark);
         }
 
-        p {
-            font-family: 'Outfit', sans-serif;
-            font-size: clamp(1rem, 2.5vw, 1.5rem);
-            font-weight: 300;
+        .cover-main-title h1 span {
+            font-size: 0.75em;
+            color: var(--wimpy-orange);
+            display: block;
+            margin-top: 5px;
+        }
+
+        .cover-tape-photo {
+            background: #fff;
+            padding: 12px 12px 25px 12px;
+            border: 3px solid var(--wimpy-dark);
+            width: 250px;
+            box-shadow: 6px 6px 0 rgba(0,0,0,0.2);
+            transform: rotate(-2deg);
+            position: relative;
+            cursor: pointer;
+        }
+
+        /* Hand drawn tape illusion on top of cover photos */
+        .cover-tape-photo::before {
+            content: '';
+            position: absolute;
+            top: -15px;
+            left: 35%;
+            width: 80px;
+            height: 30px;
+            background: rgba(255,255,255,0.85);
+            border: 1px dashed rgba(0,0,0,0.3);
+            transform: rotate(3deg);
+        }
+
+        .cover-tape-photo img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border: 2px solid var(--wimpy-dark);
+        }
+
+        .cover-author-tag {
+            font-family: 'Gochi Hand', cursive;
+            font-size: 1.8rem;
+            color: #fff;
             text-transform: uppercase;
-            letter-spacing: 0.5em;
-            color: var(--text-color);
-            padding-left: 0.5em; /* Corrects spacing offset caused by letter-spacing */
-            opacity: 0;
-            
-            /* Delayed Entry Animation */
-            animation: fadeUp 1.2s cubic-bezier(0.16, 1, 0.3, 1) 0.4s forwards;
+            letter-spacing: 0.1em;
+            text-shadow: 2px 2px 0 var(--wimpy-dark);
         }
 
-        /* --- CSS KEYFRAMES --- */
-        @keyframes textReveal {
-            0% {
-                opacity: 0;
-                transform: translateY(40px) scale(0.96);
-                filter: drop-shadow(0 0 0px rgba(0,0,0,0)) blur(10px);
-            }
-            100% {
-                opacity: 1;
-                transform: translateY(0) scale(1);
-                filter: drop-shadow(0 0 35px var(--orange-glow)) blur(0px);
-            }
+        /* --- INNER DIARY TYPOGRAPHY & LAYOUTS --- */
+        h2.section-header {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: clamp(1.4rem, 3vw, 2.2rem);
+            text-transform: uppercase;
+            border-bottom: 3px dashed var(--wimpy-dark);
+            padding-bottom: 5px;
+            margin-bottom: 15px;
+            display: inline-block;
+            color: var(--wimpy-dark);
         }
 
-        @keyframes fadeUp {
-            0% {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            100% {
-                opacity: 0.75;
-                transform: translateY(0);
-            }
+        .diary-text {
+            font-size: clamp(1.1rem, 2.2vh, 1.45rem);
+            line-height: 2.2rem;
+            color: #222;
+            margin-bottom: 15px;
+            max-width: 95%;
         }
+
+        .marker-highlight {
+            border-bottom: 3px dashed var(--wimpy-orange);
+            padding-bottom: 1px;
+            display: inline;
+        }
+
+        .split-layout {
+            display: grid;
+            grid-template-columns: 1.2fr 1fr;
+            gap: 20px;
+            flex: 1;
+            align-items: start;
+            min-height: 0;
+        }
+
+		@media(max-width: 700px) {
+			.book-container { height: 95vh; max-height: none; }
+			.split-layout { grid-template-columns: 1fr; }
+			.slide:not(.hardcover) { padding: 1.5rem 1rem 5rem 2.5rem; overflow-y: auto; }
+			.cover-tape-photo { width: 180px; }
+			.cover-tape-photo img { height: 140px; }
+			.diary-text { font-size: 1rem; line-height: 1.9rem; }
+		}
+
+        /* --- CARTOON & PREVIEW FRAMEWORK --- */
+        .comic-panel {
+            border: 3px solid var(--wimpy-dark);
+            background: #fff;
+            padding: 10px;
+            border-radius: 4px;
+            box-shadow: 4px 4px 0px var(--wimpy-dark);
+            transform: rotate(-1deg);
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            max-height: 100%;
+        }
+
+		/* Cleaned up placeholder base to let your images shine */
+		.comic-art-placeholder {
+			width: 100%;
+			height: 160px; /* Kept it slightly taller so the stick figures aren't squished */
+			margin: 10px auto;
+			background-size: contain;
+			background-repeat: no-repeat;
+			background-position: center;
+			border: none !important;      /* Removes the dashed lines */
+			background-color: transparent; /* Removes the old gray background */
+			mix-blend-mode: multiply;     /* Makes image whites transparent so your notebook lines show through */
+		}
+
+		/* Individual mappings for your new images */
+		.image-cover { background-image: url('cover.png'); }
+		.image-girls { background-image: url('girls.png'); }
+		.image-laptop { background-image: url('laptop.png'); }
+		.image-score { background-image: url('score.png'); }
+		.image-jokes { background-image: url('jokes.png'); }
+		
+		.cover-tape-photo img {
+		    mix-blend-mode: multiply;
+    	}
+
+        .jpeg-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+        .jpeg-preview {
+            border: 2px solid var(--wimpy-dark);
+            aspect-ratio: 1;
+            cursor: pointer;
+            overflow: hidden;
+            position: relative;
+            background: #eee;
+            transition: transform 0.2s ease;
+        }
+        .jpeg-preview:hover { transform: scale(1.05) rotate(1deg); border-color: var(--wimpy-orange); }
+        .jpeg-preview img { width: 100%; height: 100%; object-fit: cover; }
+        
+        .jpeg-label {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            background: var(--wimpy-dark);
+            color: white;
+            font-size: 0.65rem;
+            text-align: center;
+            padding: 2px 0;
+            text-transform: uppercase;
+        }
+
+        .hero-mikey-frame {
+            width: 100%;
+            height: 100%;
+            min-height: 240px;
+            border: 3px solid var(--wimpy-dark);
+            background: #fff;
+            padding: 8px;
+            transform: rotate(1deg);
+            box-shadow: 5px 5px 0 var(--wimpy-dark);
+        }
+        .hero-mikey-frame img { width: 100%; height: 100%; object-fit: cover; border: 1px solid var(--wimpy-dark); }
+
+        /* --- MANUAL NAVIGATION DECK --- */
+		.nav-deck {
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			width: 100%;
+			max-width: 850px;
+			padding: 0 5px;
+		}
+
+        /* Adapt colors dynamically when on front/back hardcover tracks */
+        .book-container.on-cover .page-indicator { color: #fff; text-shadow: 1px 1px 0 var(--wimpy-dark); }
+
+        .nav-btn {
+            background: var(--paper-white);
+            border: 3px solid var(--wimpy-dark);
+            padding: 6px 16px;
+            font-family: 'Gochi Hand', cursive;
+            font-size: 1.3rem;
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 6px;
+            box-shadow: 3px 3px 0px var(--wimpy-dark);
+            transition: all 0.15s ease;
+            user-select: none;
+        }
+
+        .nav-btn:hover { background: var(--wimpy-orange); color: white; transform: translate(-1px, -1px); box-shadow: 4px 4px 0px var(--wimpy-dark); }
+        .nav-btn:disabled { opacity: 0.4; cursor: not-allowed; box-shadow: 1px 1px 0px var(--wimpy-dark); transform: none; }
+
+        .page-indicator { font-size: 1.1rem; color: #666; font-weight: bold; }
+
+        /* --- MODAL LIGHTBOX --- */
+        .lightbox {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.95);
+            z-index: 1000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            cursor: zoom-out;
+        }
+        .lightbox img { max-width: 90%; max-height: 85%; border: 5px solid white; box-shadow: 0 0 25px rgba(255,85,0,0.3); }
     </style>
 </head>
 <body>
 
-    <!-- Kinetic Background Canvas -->
-    <canvas id="ambientCanvas"></canvas>
-
-    <!-- Core Content Block -->
-    <div class="text-wrap">
-        <h1>Coming</h1>
-        <p>Soon</p>
+    <!-- LOOP AUDIO CONTROLLER -->
+    <div class="audio-deck">
+        <button id="audioControlBtn" onclick="toggleAudio()">Play Audio 📻</button>
+        <input type="range" id="volumeSlider" min="0" max="1" step="0.1" value="0.5" oninput="adjustVolume(this.value)">
+        <audio id="bgMusic" src="fat_dog_mendoza.mp3" loop></audio>
     </div>
 
+    <!-- MAIN INTERACTIVE BOOK SHELL -->
+    <div class="book-container on-cover">
+        <div class="lined-paper"></div>
+
+		<!-- [SLIDE 1] HARDCOVER: FRONT COVER -->
+		<div class="slide hardcover active">
+			<div class="cover-top-tag">Diary of a Sales Intern</div>
+			<div class="cover-main-title">
+				<h1>The Adventures of<br><span>MiKEY & Chindindu</span></h1>
+			</div>
+			<!-- Pointed Lightbox to cover.png to match your image file format -->
+			<div class="cover-tape-photo" onclick="openLightbox('cover.png')">
+				<img src="cover.png" alt="Front Cover - Rodrick and Greg Smiling">
+				<div class="jpeg-label">Open Cover Photo</div>
+			</div>
+			<div class="cover-author-tag">By Mebud (aka COTworks)</div>
+		</div>
+
+        <!-- [SLIDE 2] JOURNAL PAGE 1 -->
+        <div class="slide">
+            <h2 class="section-header">Chapter 1: The Only Two Men Standing</h2>
+            <div class="split-layout">
+                <div>
+                    <p class="diary-text">
+                        In the previous cohort, things were wild. Looking around the VA track, I noticed something instantly: we were the <span class="marker-highlight">only two male figures</span> present. I was the lone male intern, and he was the sole male mentor.
+                    </p>
+                    <p class="diary-text">
+                        During those final days, he handed me the nickname <span class="marker-highlight">Chindindu</span>, and naturally, I started calling him Brother MiKEY. Fast forward to HNG i14, he spotted me out instantly and hinted at me returning. It was an elite callout, and nobody else caught on except for G_ (Godwin)!
+                    </p>
+                </div>
+                <div class="comic-panel">
+                    <div class="comic-art-placeholder image-girls"></div>
+                    <div class="jpeg-grid">
+                        <div class="jpeg-preview" onclick="openLightbox('chindindu.jpg')"><img src="chindindu.jpg"><div class="jpeg-label">Chindindu</div></div>
+                        <div class="jpeg-preview" onclick="openLightbox('busted.jpg')"><img src="busted.jpg"><div class="jpeg-label">Busted</div></div>
+						<div class="jpeg-preview" onclick="openLightbox('callout.jpg')"><img src="callout.jpg"><div class="jpeg-label">Callout</div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- [SLIDE 3] JOURNAL PAGE 2 -->
+        <div class="slide">
+            <h2 class="section-header">Chapter 2: No Vacation for the Busy Bee</h2>
+            <div class="split-layout">
+                <div>
+                    <p class="diary-text">
+                        MiKEY is a real hardworker. There's no question about it. For one of my tasks, we needed a voice call, but I could tell he was completely underwater with work. By the next task, we needed to sync even more, and he was so slammed we <span class="marker-highlight">almost didn't get to have the call</span>. 
+                    </p>
+                    <p class="diary-text">
+                        At one point, he casually mentioned how swamped he was and how much he urgently needed a personal Virtual Assistant. I was running around dealing with a million tech issues myself, so I couldn't step up to be his VA. (Consider this me running a free advertisement for him right now, lol).
+                    </p>
+					<p class="diary-text">
+						I saw so much of myself in his routine that I literally asked him: <i>"Is this how you started out?"</i> Because I really don't want to turn into a permanently swamped busy bee. Like, honestly, where am I supposed to slot in my future <span class="marker-highlight">Netherlands vacation time</span> if I'm always grinding?
+					</p>
+				</div>
+                <div class="comic-panel">
+                    <div class="comic-art-placeholder image-laptop"></div>
+                    <div class="jpeg-grid">
+                        <div class="jpeg-preview" onclick="openLightbox('mikey-convo.png')"><img src="mikey-convo.png"><div class="jpeg-label">Mikey Convo</div></div>
+                        <div class="jpeg-preview" onclick="openLightbox('busybees.jpg')"><img src="busybees.jpg"><div class="jpeg-label">Busy Bees</div></div>
+						<div class="jpeg-preview" onclick="openLightbox('mikey_eat.jpg')"><img src="mikey_eat.jpg"><div class="jpeg-label">Go and Eat</div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- [SLIDE 4] JOURNAL PAGE 3 -->
+        <div class="slide">
+            <h2 class="section-header">Chapter 3: The 86% Save</h2>
+            <div class="split-layout">
+                <div>
+                    <p class="diary-text">
+                        I was completely losing my mind under HNG deadline pressure for that task where we needed a call, but when we finally got on the line? He absolutely delivered. We connected so well about what I needed for the task and my gears started firing again. He even helped me get a 1 hour extension on the task.
+                    </p>
+                    <p class="diary-text">
+                        A couple of weeks later, he mapped out a spectacular structural concept for my social checklist webpage and extended the timeline perfectly—giving me room to build without letting me slack off. Thanks to his direct SEO feedback one one of my tasks, <span class="marker-highlight">I secured an 86% score!</span> and I didn't even use up ALL of his advice.
+                    </p>
+                </div>
+                <div class="comic-panel">
+                    <div class="comic-art-placeholder image-score"></div>
+                    <div class="jpeg-grid">
+                        <div class="jpeg-preview" onclick="openLightbox('mikey_call.jpg')"><img src="mikey_call.jpg"><div class="jpeg-label">Mikey Call</div></div>
+                        <div class="jpeg-preview" onclick="openLightbox('seo_tips.jpg')"><img src="seo_tips.jpg"><div class="jpeg-label">MiKEY's Tips</div></div>
+                        <div class="jpeg-preview" onclick="openLightbox('86.png')"><img src="86.png"><div class="jpeg-label">86% Score</div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- [SLIDE 5] JOURNAL PAGE 4 -->
+        <div class="slide">
+            <h2 class="section-header">Chapter 4: "Sweet Mathematechy" & Real Talk</h2>
+            <div class="split-layout">
+                <div>
+                    <p class="diary-text">
+                        Now, the man teases a lot, and it is hilarious. I still crack up remembering him calling a colleague <span class="marker-highlight">"sweet Mathematechy! Buy your Sweet Mathematechy"</span> out loud in the channel like he was hawking her on the street. 
+                    </p>
+                    <p class="diary-text">
+                        But he can also be incredibly snappy when provoked. He straight-up labeled someone's final work "shit" once, and during a live presentation, he got so visibly pissed off at people turning in unedited AI work. It's probably his one real flaw, but honestly, it happens so rarely I'll allow it. It keeps everyone sharp!
+                    </p>
+                </div>
+                <div class="comic-panel">
+                    <div class="comic-art-placeholder image-jokes"></div>
+                    <div class="jpeg-grid">
+                        <div class="jpeg-preview" onclick="openLightbox('mathematechy.jpg')"><img src="mathematechy.jpg"><div class="jpeg-label">Mathematechy</div></div>
+                        <div class="jpeg-preview" onclick="openLightbox('savage_2.png')"><img src="savage_2.png"><div class="jpeg-label">Shit</div></div>
+                        <div class="jpeg-preview" onclick="openLightbox('savage_1.jpg')"><img src="savage_1.jpg"><div class="jpeg-label">Savage</div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- [SLIDE 6] JOURNAL PAGE 5 -->
+        <div class="slide">
+            <h2 class="section-header">Conclusion: The Power Bank Rule</h2>
+            <div class="split-layout">
+                <div>
+                    <p class="diary-text">
+                        MiKEY will offer to pull you up, but <span class="marker-highlight">he will never do your work for you</span>. Only those who are quick enough to grab on would actually benefit. 
+                    </p>
+                    <p class="diary-text" style="font-style: italic;">
+                        Overall, he feels like a big brother who would absolutely save your life, but would never give you his power bank.
+                    </p>
+                    <p class="diary-text">
+                        I've archived every single piece of feedback he dropped during HNG. The pressure I faced here meant I couldn't use them all instantly, but they're saved for everything I'm doing next. I truly hope he builds the dream he works so tirelessly for.
+                    </p>
+                </div>
+                <!-- Spotlight frame for mentor's image -->
+                <div class="hero-mikey-frame" onclick="openLightbox('mikey.jpg')">
+                    <img src="mikey.jpg" alt="Michael Abu (MiKEY) Mentor Spotlight Picture">
+                    <div class="jpeg-label" style="font-family:'Plus Jakarta Sans'; font-weight:800; font-size:0.75rem;">
+                        Michael Abu // Future Erri Muss
+                    </div>
+                </div>
+            </div>
+        </div>
+
+		<!-- [SLIDE 7] HARDCOVER: BACK COVER -->
+		<div class="slide hardcover">
+			<div class="cover-top-tag" style="transform: rotate(0.5deg);">Acknowledgments</div>
+			<div class="cover-main-title" style="transform: rotate(-1deg); max-width: 500px; padding: 25px 20px;">
+				<h1 style="font-size: 2.2rem;">THE END</h1>
+				<p style="font-family: 'Gochi Hand', cursive; color: #555; font-size: 1.4rem; margin-top: 10px; text-transform: none; line-height: 1.3;">
+					Huge thanks to Brother MiKEY for the guidance, corrections, and structure. I hope he has eaten dinner today!
+				</p>
+			</div>
+			<!-- Reuses cover.png perfectly with custom back-cover rotations -->
+			<div class="cover-tape-photo" style="transform: rotate(1.5deg); width: 200px;" onclick="openLightbox('cover.png')">
+				<img src="cover.png" alt="Back Cover - Rodrick and Greg Smiling">
+				<div class="jpeg-label">Open Back Graphic</div>
+			</div>
+				<div class="cover-author-tag" style="style="font-size: 1.3rem;">HNG Mentor Spotlight</div>
+				</div>
+
+			</div>
+
+			<div class="nav-deck">
+				<button class="nav-btn" id="prevBtn" onclick="changePage(-1)" disabled>◀ Previous</button>
+				<span class="page-indicator" id="pageNumber" style="visibility: hidden;"></span>
+				<button class="nav-btn" id="nextBtn" onclick="changePage(1)">Next Page ▶</button>
+			</div>
+
+			<!-- LIGHTBOX SYSTEM -->
+			<div class="lightbox" id="imageLightbox" onclick="closeLightbox()">
+				<img id="lightboxTargetImage" src="" alt="Expanded View Element">
+			</div>
+			
     <script>
-        const canvas = document.getElementById('ambientCanvas');
-        const ctx = canvas.getContext('2d');
+        /* --- CHRONOLOGICAL SLIDE SWAP CONTROLLER --- */
+        let currentSlideIndex = 0;
+        const slides = document.querySelectorAll('.slide');
+        const bookContainer = document.querySelector('.book-container');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const pageNumberIndicator = document.getElementById('pageNumber');
 
-        let beams = [];
-        let mouse = { x: null, y: null, targetX: null, targetY: null };
-
-        function resize() {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-            // Snap mouse targets to center on load/resize
-            mouse.targetX = canvas.width / 2;
-            mouse.targetY = canvas.height / 2;
-            if(mouse.x === null) {
-                mouse.x = mouse.targetX;
-                mouse.y = mouse.targetY;
-            }
-        }
-
-        // Kinetic Audio-less Wave Vector Beam 
-        class EnergyBeam {
-            constructor() {
-                this.init();
-            }
-
-            init() {
-                this.x = Math.random() * canvas.width;
-                this.y = Math.random() * canvas.height;
-                this.length = Math.random() * 150 + 50;
-                this.speed = Math.random() * 1.5 + 0.5;
-                this.angle = Math.random() * Math.PI * 2;
-                this.rotSpeed = (Math.random() - 0.5) * 0.01;
-                this.thickness = Math.random() * 2 + 0.5;
-                this.pulseSpeed = Math.random() * 0.03 + 0.01;
-                this.pulse = Math.random() * Math.PI;
-            }
-
-            update() {
-                // Kinetic drift
-                this.x += Math.cos(this.angle) * this.speed;
-                this.y += Math.sin(this.angle) * this.speed;
-                this.angle += this.rotSpeed;
-                this.pulse += this.pulseSpeed;
-
-                // Subtle magnetic pull toward mouse coordinate
-                let dx = mouse.x - this.x;
-                let dy = mouse.y - this.y;
-                let dist = Math.sqrt(dx * dx + dy * dy);
-                if (dist < 350) {
-                    this.x += (dx / dist) * 0.4;
-                    this.y += (dy / dist) * 0.4;
-                }
-
-                // Recycle beams out of bounds
-                if (this.x < -100 || this.x > canvas.width + 100 || this.y < -100 || this.y > canvas.height + 100) {
-                    this.init();
-                }
-            }
-
-            draw() {
-                let alpha = (Math.sin(this.pulse) + 1) / 2 * 0.4; // smooth oscillation
-                ctx.save();
-                ctx.strokeStyle = '#ff5500';
-                ctx.lineWidth = this.thickness;
-                ctx.globalAlpha = alpha;
-                ctx.shadowBlur = 15;
-                ctx.shadowColor = '#ff3300';
-                
-                ctx.beginPath();
-                ctx.moveTo(this.x, this.y);
-                ctx.lineTo(
-                    this.x + Math.cos(this.angle) * this.length, 
-                    this.y + Math.sin(this.angle) * this.length
-                );
-                ctx.stroke();
-                ctx.restore();
-            }
-        }
-
-        function setup() {
-            resize();
-            window.addEventListener('resize', resize);
+        function changePage(direction) {
+            slides[currentSlideIndex].classList.remove('active');
             
-            // Track mouse positions
-            window.addEventListener('mousemove', (e) => {
-                mouse.targetX = e.clientX;
-                mouse.targetY = e.clientY;
-            });
+            currentSlideIndex += direction;
+            if(currentSlideIndex < 0) currentSlideIndex = 0;
+            if(currentSlideIndex >= slides.length) currentSlideIndex = slides.length - 1;
 
-            // Initialize beam elements
-            const totalBeams = Math.min(45, Math.floor((canvas.width * canvas.height) / 30000));
-            for (let i = 0; i < totalBeams; i++) {
-                beams.push(new EnergyBeam());
+            slides[currentSlideIndex].classList.add('active');
+
+            // Toggle notebook line presence if we are on Slide 1 (Front Cover) or Slide 7 (Back Cover)
+            if (currentSlideIndex === 0 || currentSlideIndex === slides.length - 1) {
+                bookContainer.classList.add('on-cover');
+            } else {
+                bookContainer.classList.remove('on-cover');
+            }
+
+            // Button locking conditions
+            prevBtn.disabled = (currentSlideIndex === 0);
+            nextBtn.disabled = (currentSlideIndex === slides.length - 1);
+            
+            // Adjust label strings based on context
+            let progressLabel = `Page ${currentSlideIndex + 1} of ${slides.length}`;
+            if (currentSlideIndex === 0) progressLabel = " ";
+            if (currentSlideIndex === slides.length - 1) progressLabel = " ";
+            pageNumberIndicator.textContent = progressLabel;
+        }
+
+        /* --- AUDIO STREAM SYSTEM --- */
+        const audio = document.getElementById('bgMusic');
+        const audioBtn = document.getElementById('audioControlBtn');
+
+        function toggleAudio() {
+            if (audio.paused) {
+                audio.play().then(() => {
+                    audioBtn.textContent = "Mute Audio 🔇";
+                    audioBtn.style.background = "#22c55e";
+                }).catch(err => {
+                    console.log("Autoplay protection system caught action: ", err);
+                    alert("Click anywhere on the book page first, then toggle the radio button again!");
+                });
+            } else {
+                audio.pause();
+                audioBtn.textContent = "Play Audio 📻";
+                audioBtn.style.background = "var(--wimpy-orange)";
             }
         }
 
-        function loop() {
-            // Context cleanup with slight trail transparency holdover
-            ctx.fillStyle = 'rgba(7, 7, 8, 0.15)';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-            // Smooth interpolation (lerp) for mouse positioning
-            mouse.x += (mouse.targetX - mouse.x) * 0.08;
-            mouse.y += (mouse.targetY - mouse.y) * 0.08;
-
-            // Draw radial glow tracking center/mouse context behind text
-            let gradient = ctx.createRadialGradient(mouse.x, mouse.y, 10, mouse.x, mouse.y, Math.max(canvas.width, canvas.height) * 0.6);
-            gradient.addColorStop(0, 'rgba(255, 68, 0, 0.07)');
-            gradient.addColorStop(1, 'rgba(0,0,0,0)');
-            ctx.fillStyle = gradient;
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-            // Process beams
-            beams.forEach(beam => {
-                beam.update();
-                beam.draw();
-            });
-
-            requestAnimationFrame(loop);
+        function adjustVolume(val) {
+            audio.volume = val;
         }
 
-        setup();
-        loop();
+        /* --- LIGHTBOX MODULES --- */
+        const lightbox = document.getElementById('imageLightbox');
+        const lightboxImg = document.getElementById('lightboxTargetImage');
+
+        function openLightbox(imageSrc) {
+            lightboxImg.src = imageSrc;
+            lightbox.style.display = 'flex';
+        }
+
+        function closeLightbox() {
+            lightbox.style.display = 'none';
+            lightboxImg.src = "";
+        }
     </script>
 </body>
 </html>
