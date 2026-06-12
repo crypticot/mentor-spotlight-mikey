@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Coming Soon</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400&family=Plus+Jakarta+Sans:wght@800&display=swap" rel="stylesheet">
+
+    <style>
+        /* --- DESIGN SYSTEM --- */
+        :root {
+            --bg-dark: #070708;
+            --orange-bright: #ff5500;
+            --orange-deep: #cc3300;
+            --orange-glow: rgba(255, 85, 0, 0.25);
+            --text-color: #ff9966;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            min-height: 100vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            perspective: 1000px;
+        }
+
+        /* --- BACKGROUND CANVAS --- */
+        canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+
+        /* --- TEXT CONTAINER --- */
+        .text-wrap {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+            pointer-events: none;
+            user-select: none;
+            padding: 20px;
+        }
+
+        /* --- TYPOGRAPHY & TEXT ANIMATIONS --- */
+        h1 {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: clamp(3.5rem, 10vw, 8rem);
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: -0.04em;
+            line-height: 0.9;
+            margin-bottom: 0.5rem;
+            
+            /* Fluid Orange Gradient */
+            background: linear-gradient(135deg, #ffffff 10%, var(--orange-bright) 60%, var(--orange-deep) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            
+            /* Structural glow */
+            filter: drop-shadow(0 0 35px var(--orange-glow));
+            
+            /* Entry Animation */
+            animation: textReveal 1.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        p {
+            font-family: 'Outfit', sans-serif;
+            font-size: clamp(1rem, 2.5vw, 1.5rem);
+            font-weight: 300;
+            text-transform: uppercase;
+            letter-spacing: 0.5em;
+            color: var(--text-color);
+            padding-left: 0.5em; /* Corrects spacing offset caused by letter-spacing */
+            opacity: 0;
+            
+            /* Delayed Entry Animation */
+            animation: fadeUp 1.2s cubic-bezier(0.16, 1, 0.3, 1) 0.4s forwards;
+        }
+
+        /* --- CSS KEYFRAMES --- */
+        @keyframes textReveal {
+            0% {
+                opacity: 0;
+                transform: translateY(40px) scale(0.96);
+                filter: drop-shadow(0 0 0px rgba(0,0,0,0)) blur(10px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+                filter: drop-shadow(0 0 35px var(--orange-glow)) blur(0px);
+            }
+        }
+
+        @keyframes fadeUp {
+            0% {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            100% {
+                opacity: 0.75;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Kinetic Background Canvas -->
+    <canvas id="ambientCanvas"></canvas>
+
+    <!-- Core Content Block -->
+    <div class="text-wrap">
+        <h1>Coming</h1>
+        <p>Soon</p>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('ambientCanvas');
+        const ctx = canvas.getContext('2d');
+
+        let beams = [];
+        let mouse = { x: null, y: null, targetX: null, targetY: null };
+
+        function resize() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            // Snap mouse targets to center on load/resize
+            mouse.targetX = canvas.width / 2;
+            mouse.targetY = canvas.height / 2;
+            if(mouse.x === null) {
+                mouse.x = mouse.targetX;
+                mouse.y = mouse.targetY;
+            }
+        }
+
+        // Kinetic Audio-less Wave Vector Beam 
+        class EnergyBeam {
+            constructor() {
+                this.init();
+            }
+
+            init() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.length = Math.random() * 150 + 50;
+                this.speed = Math.random() * 1.5 + 0.5;
+                this.angle = Math.random() * Math.PI * 2;
+                this.rotSpeed = (Math.random() - 0.5) * 0.01;
+                this.thickness = Math.random() * 2 + 0.5;
+                this.pulseSpeed = Math.random() * 0.03 + 0.01;
+                this.pulse = Math.random() * Math.PI;
+            }
+
+            update() {
+                // Kinetic drift
+                this.x += Math.cos(this.angle) * this.speed;
+                this.y += Math.sin(this.angle) * this.speed;
+                this.angle += this.rotSpeed;
+                this.pulse += this.pulseSpeed;
+
+                // Subtle magnetic pull toward mouse coordinate
+                let dx = mouse.x - this.x;
+                let dy = mouse.y - this.y;
+                let dist = Math.sqrt(dx * dx + dy * dy);
+                if (dist < 350) {
+                    this.x += (dx / dist) * 0.4;
+                    this.y += (dy / dist) * 0.4;
+                }
+
+                // Recycle beams out of bounds
+                if (this.x < -100 || this.x > canvas.width + 100 || this.y < -100 || this.y > canvas.height + 100) {
+                    this.init();
+                }
+            }
+
+            draw() {
+                let alpha = (Math.sin(this.pulse) + 1) / 2 * 0.4; // smooth oscillation
+                ctx.save();
+                ctx.strokeStyle = '#ff5500';
+                ctx.lineWidth = this.thickness;
+                ctx.globalAlpha = alpha;
+                ctx.shadowBlur = 15;
+                ctx.shadowColor = '#ff3300';
+                
+                ctx.beginPath();
+                ctx.moveTo(this.x, this.y);
+                ctx.lineTo(
+                    this.x + Math.cos(this.angle) * this.length, 
+                    this.y + Math.sin(this.angle) * this.length
+                );
+                ctx.stroke();
+                ctx.restore();
+            }
+        }
+
+        function setup() {
+            resize();
+            window.addEventListener('resize', resize);
+            
+            // Track mouse positions
+            window.addEventListener('mousemove', (e) => {
+                mouse.targetX = e.clientX;
+                mouse.targetY = e.clientY;
+            });
+
+            // Initialize beam elements
+            const totalBeams = Math.min(45, Math.floor((canvas.width * canvas.height) / 30000));
+            for (let i = 0; i < totalBeams; i++) {
+                beams.push(new EnergyBeam());
+            }
+        }
+
+        function loop() {
+            // Context cleanup with slight trail transparency holdover
+            ctx.fillStyle = 'rgba(7, 7, 8, 0.15)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Smooth interpolation (lerp) for mouse positioning
+            mouse.x += (mouse.targetX - mouse.x) * 0.08;
+            mouse.y += (mouse.targetY - mouse.y) * 0.08;
+
+            // Draw radial glow tracking center/mouse context behind text
+            let gradient = ctx.createRadialGradient(mouse.x, mouse.y, 10, mouse.x, mouse.y, Math.max(canvas.width, canvas.height) * 0.6);
+            gradient.addColorStop(0, 'rgba(255, 68, 0, 0.07)');
+            gradient.addColorStop(1, 'rgba(0,0,0,0)');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Process beams
+            beams.forEach(beam => {
+                beam.update();
+                beam.draw();
+            });
+
+            requestAnimationFrame(loop);
+        }
+
+        setup();
+        loop();
+    </script>
+</body>
+</html>
