@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The Adventures of MiKEY and Chindindu</title>
+    <title>The Adventures of MiKEY and Chindundu</title>
     
     <!-- Wimpy Kid Hand-drawn & Cover Typefaces -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -293,6 +293,9 @@
 			.cover-tape-photo { width: 180px; }
 			.cover-tape-photo img { height: 140px; }
 			.diary-text { font-size: 1rem; line-height: 1.9rem; }
+			.lined-paper::before {
+				left: 20px;
+			}
 		}
 
         /* --- CARTOON & PREVIEW FRAMEWORK --- */
@@ -395,6 +398,7 @@
             box-shadow: 3px 3px 0px var(--wimpy-dark);
             transition: all 0.15s ease;
             user-select: none;
+			white-space: nowrap;
         }
 
         .nav-btn:hover { background: var(--wimpy-orange); color: white; transform: translate(-1px, -1px); box-shadow: 4px 4px 0px var(--wimpy-dark); }
@@ -436,7 +440,7 @@
 		<div class="slide hardcover active">
 			<div class="cover-top-tag">Diary of a Sales Intern</div>
 			<div class="cover-main-title">
-				<h1>The Adventures of<br><span>MiKEY & Chindindu</span></h1>
+				<h1>The Adventures of<br><span>MiKEY & Chindundu</span></h1>
 			</div>
 			<!-- Pointed Lightbox to cover.png to match your image file format -->
 			<div class="cover-tape-photo" onclick="openLightbox('cover.png')">
@@ -455,13 +459,13 @@
                         In the previous cohort, things were wild. Looking around the VA track, I noticed something instantly: we were the <span class="marker-highlight">only two male figures</span> present. I was the lone male intern, and he was the sole male mentor.
                     </p>
                     <p class="diary-text">
-                        During those final days, he handed me the nickname <span class="marker-highlight">Chindindu</span>, and naturally, I started calling him Brother MiKEY. Fast forward to HNG i14, he spotted me out instantly and hinted at me returning. It was an elite callout, and nobody else caught on except for G_ (Godwin)!
+                        During those final days, he handed me the nickname <span class="marker-highlight">Chindundu</span>, and naturally, I started calling him Brother MiKEY. Fast forward to HNG i14, he spotted me out instantly and hinted at me returning. It was an elite callout, and nobody else caught on except for G_ (Godwin)!
                     </p>
                 </div>
                 <div class="comic-panel">
                     <div class="comic-art-placeholder image-girls"></div>
                     <div class="jpeg-grid">
-                        <div class="jpeg-preview" onclick="openLightbox('chindindu.jpg')"><img src="chindindu.jpg"><div class="jpeg-label">Chindindu</div></div>
+                        <div class="jpeg-preview" onclick="openLightbox('chindundu.jpg')"><img src="chindundu.jpg"><div class="jpeg-label">Chindundu</div></div>
                         <div class="jpeg-preview" onclick="openLightbox('busted.jpg')"><img src="busted.jpg"><div class="jpeg-label">Busted</div></div>
 						<div class="jpeg-preview" onclick="openLightbox('callout.jpg')"><img src="callout.jpg"><div class="jpeg-label">Callout</div></div>
                     </div>
@@ -557,7 +561,7 @@
                     </p>
                 </div>
                 <!-- Spotlight frame for mentor's image -->
-                <div class="hero-mikey-frame" onclick="openLightbox('mikey.jpg')">
+                <div class="hero-mikey-frame" onclick="openLightbox('MiKEY.jpg')">
                     <img src="MiKEY.jpg" alt="Michael Abu (MiKEY) Mentor Spotlight Picture">
                     <div class="jpeg-label" style="font-family:'Plus Jakarta Sans'; font-weight:800; font-size:0.75rem;">
                         Michael Abu // Future Erri Muss
